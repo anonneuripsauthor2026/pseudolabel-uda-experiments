@@ -29,7 +29,7 @@ The repository is organized around three primary rebuttal experiments, plus the 
 | | Oracle (True Target Labels) | 0.437 | 0.008 |
 | **Baseline** | Naive (Source-Only) | 0.442 | 0.014 |
 
-### 2. `demo_covariate_shift.ipynb` part I
+### 2. Toy example in `demo_covariate_shift.ipynb`
 **Objective:** Demonstrate the necessity of target-specific adaptation, achieved through target-aware Ridge regularization's parameter selection for well-specified models.
 * **Description:** This simulation generates a well-specified synthetic environment undergoing covariate shift. It compares the risk landscape of models tuned exclusively on the source distribution (Naive) versus models tuned via our target-optimal penalty selection.
 * **Results:** The simulation showcases that the presence of covariate shift alters the optimal regularization path. Relying on source-optimal penalties leads to severe target risk degradation, highlighting why unsupervised target adaptation is required.
@@ -69,7 +69,7 @@ For full reproducible details—including the exact grid of hyperparameters and 
 | **Oracle** | 0.002855 | [0.001312, 0.004399] |
 
 
-### 3. `demo_covariate_shift.ipynb` part II
+### 3. Ablation study in `demo_covariate_shift.ipynb`
 **Objective:** Ablation study on the imputation model penalty (`lbd_tilde`) to validate our theoretical insight.
 * **Description:** Our theoretical analysis dictates that the imputation model must be undersmoothed to ensure valid model selection. This script sweeps over a grid of `lbd_tilde` values during the pseudo-label generation phase. 
 * **Results:** The output empirically demonstrates that low regularization on the imputer is necessary to achieve Oracle-level target risk, aligning with the oracle inequality Theorem 5.2 derived in the main paper.
