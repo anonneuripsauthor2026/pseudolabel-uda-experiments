@@ -6,7 +6,7 @@ This anonymous repository contains the code and reproducible scripts for the ori
 
 ## Repository Structure
 
-The repository is organized around three primary rebuttal experiments:
+The repository is organized around three primary rebuttal experiments, plus the original synthetic experiment:
 
 ### 1. `benchmark_raisin_full.ipynb`
 **Objective:** Compare our GLM Pseudo-Labeling framework against established density-ratio (Importance Weighting) and KRR pseudo-labeling baselines.
