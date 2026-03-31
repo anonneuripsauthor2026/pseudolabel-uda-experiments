@@ -6,9 +6,9 @@ This anonymous repository contains the code and reproducible scripts for the ori
 
 ## Repository Structure
 
-The repository is organized around three primary rebuttal experiments, plus the original synthetic experiment:
+The repository is organized around two primary rebuttal experiments (1. and 3.), plus the original synthetic experiment (2.):
 
-### 1. `benchmark_raisin_full.ipynb`
+### 1. Baselines Comparisons (`benchmark_raisin_full.ipynb`)
 **Objective:** Compare our GLM Pseudo-Labeling framework against established density-ratio (Importance Weighting) and KRR pseudo-labeling baselines.
 * **Methods Included:**
   * Unsupervised GLM Pseudo-Labeling (Ours)
@@ -29,7 +29,7 @@ The repository is organized around three primary rebuttal experiments, plus the 
 | | Oracle (True Target Labels) | 0.437 | 0.008 |
 | **Baseline** | Naive (Source-Only) | 0.442 | 0.014 |
 
-### 2. Toy example in `demo_covariate_shift.ipynb`
+### 2. Toy Example (`demo_covariate_shift.ipynb`)
 **Objective:** Demonstrate the necessity of target-specific adaptation, achieved through target-aware Ridge regularization's parameter selection for well-specified models.
 * **Description:** This simulation generates a well-specified synthetic environment undergoing covariate shift. It compares the risk landscape of models tuned exclusively on the source distribution (Naive) versus models tuned via our target-optimal penalty selection.
 * **Results:** The simulation showcases that the presence of covariate shift alters the optimal regularization path. Relying on source-optimal penalties leads to severe target risk degradation, highlighting why unsupervised target adaptation is required.
@@ -69,10 +69,30 @@ For full reproducible details—including the exact grid of hyperparameters and 
 | **Oracle** | 0.002855 | [0.001312, 0.004399] |
 
 
-### 3. Ablation study in `demo_covariate_shift.ipynb`
-**Objective:** Ablation study on the imputation model penalty (`lbd_tilde`) to validate our theoretical insight.
-* **Description:** Our theoretical analysis dictates that the imputation model must be undersmoothed to ensure valid model selection. This script sweeps over a grid of `lbd_tilde` values during the pseudo-label generation phase. 
-* **Results:** The output empirically demonstrates that low regularization on the imputer is necessary to achieve Oracle-level target risk, aligning with the oracle inequality Theorem 5.2 derived in the main paper.
+### 3. Ablation Study (`ablation_logistic.ipynb`): Validating the Undersmoothed Imputation Penalty
+
+**Objective:** To empirically validate our theoretical insight that the imputation model penalty ($\tilde{\lambda}$) must be small to guarantee valid model selection.
+
+**Description:**
+Our theoretical analysis dictates that the imputation model must be **undersmoothed** to ensure valid model selection with pseudo-labels. While our theoretical guarantees (Theorem 5.2) hold for finite samples, isolating the leading-order effects that govern the optimal penalty scaling requires a sufficiently large sample size. We evaluate our method using $n$ = 16,000 to empirically validate this regime without interference from finite-sample noise. To ensure statistical significance, we sweep across a grid of penalty values and measure the empirical target excess risk of the final estimator over 50 independent Monte Carlo trials. We use the same setup as the previous toy example, i.e. same feature space, response model, and kernel.
+
+**Results:**
+The output empirically demonstrates that low regularization on the imputer is necessary to achieve Oracle-level target risk, perfectly aligning with the oracle inequality derived in Theorem 5.2 of the main paper.
+
+![Ablation Study Results](ablation_plot.png)
+
+#### Quantitative Summary
+
+| Imputation Penalty ($\tilde{\lambda}$) | Regime | Empirical Target Excess Risk |
+|:---|:---|:---|
+| **$10^{-5}$** | **Undersmoothed (Optimal)** | **0.011 ± 0.001** |
+| $10^{-4}$ | Intermediate | 0.020 ± 0.002 |
+| $10^{-3}$ | Standard Baseline | 0.114 ± 0.003 |
+
+#### Main Takeaways
+* **Theory Confirmed:** The empirically optimal penalty ($\tilde{\lambda} = 10^{-5}$) matches our theoretical requirement for an undersmoothed imputation model.
+* **Massive Performance Gap:** Using the optimal undersmoothed penalty yields a **>10x reduction in excess risk** compared to a standard baseline penalty (0.011 vs. 0.114).
+* **Statistical Significance:** The improvement of the undersmoothed estimator over the baseline is highly statistically significant across all random seeds ($p < 10^{-34}$, paired t-test).
 
 ### 4. Synthetic Data (Section 6.1)
 We test our approach using logistic regression with the first-order Sobolev kernel, as explained in Section 6.1 of the paper. 
