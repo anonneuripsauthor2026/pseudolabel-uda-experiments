@@ -1,21 +1,17 @@
-# Code Repository for Rebuttal Experiments
+# Code Repository for the Review Process
 
-**Paper:** *Pseudo-Labeling for Unsupervised Domain Adaptation with Kernel GLMs* (ICML 2026 Submission)
+**Paper:** *Pseudo-Labeling for Unsupervised Domain Adaptation with Kernel GLMs* (NeurIPS 2026 Submission)
 
-This anonymous repository contains the code and reproducible scripts for the original and additional experiments conducted during the author rebuttal phase. These experiments empirically validate the theoretical claims made in the manuscript and address specific reviewer questions regarding baselines and hyperparameter behavior under covariate shift.
+This anonymous repository contains the code and reproducible scripts for the paper's experiments.
 
-## Repository Structure
-
-The repository is organized around two primary rebuttal experiments (1. and 3.), plus the original synthetic experiment (2.):
-
-### 1. Baselines Comparisons (`benchmark_raisin_full.ipynb`)
+## 1. Baselines Comparisons (`benchmark_raisin_full.ipynb`)
 **Objective:** Compare our GLM Pseudo-Labeling framework against established density-ratio (Importance Weighting) and KRR pseudo-labeling baselines.
 * **Methods Included:**
   * Unsupervised GLM Pseudo-Labeling (Ours)
   * KRR Pseudo-Labeling (Wang, 2023)
   * Importance-Weighted Cross-Validation via KLIEP (KLIEP-IW)
   * Importance-Weighted Cross-Validation via Kernel Mean Matching (KMM-IW)
-* **Description:** This script runs the strict "split-and-fit" cross-validation pipeline across 100 random seeds on the Raisin dataset, as described in Section 6.2 of the paper. It tracks the candidate selection process via log-loss (cross-entropy) and demonstrates the instability of density-ratio methods as well as the calibration failure of unconstrained squared-loss selection (KRR).
+* **Description:** This script runs the strict "split-and-fit" cross-validation pipeline across 100 random seeds on the Raisin dataset, as described in Section 5.2 of the paper. It tracks the candidate selection process via log-loss (cross-entropy) and demonstrates the instability of density-ratio methods as well as the calibration failure of unconstrained squared-loss selection (KRR).
 
 | Method Category | Selection Strategy / Model | Target Risk (Mean) | Standard Error (SE) |
 | :--- | :--- | :--- | :--- |
@@ -29,7 +25,7 @@ The repository is organized around two primary rebuttal experiments (1. and 3.),
 | | Oracle (True Target Labels) | 0.437 | 0.008 |
 | **Baseline** | Naive (Source-Only) | 0.442 | 0.014 |
 
-### 2. Toy Example (`demo_covariate_shift.ipynb`)
+## 2. Toy Example (`demo_covariate_shift.ipynb`)
 **Objective:** Demonstrate the necessity of target-specific adaptation, achieved through target-aware Ridge regularization's parameter selection for well-specified models.
 * **Description:** This simulation generates a well-specified synthetic environment undergoing covariate shift. It compares the risk landscape of models tuned exclusively on the source distribution (Naive) versus models tuned via our target-optimal penalty selection.
 * **Results:** The simulation showcases that the presence of covariate shift alters the optimal regularization path. Relying on source-optimal penalties leads to severe target risk degradation, highlighting why unsupervised target adaptation is required.
@@ -69,15 +65,15 @@ For full reproducible details—including the exact grid of hyperparameters and 
 | **Oracle** | 0.002855 | [0.001312, 0.004399] |
 
 
-### 3. Ablation Study (`ablation_logistic.ipynb`): Validating the Undersmoothed Imputation Penalty
+## 3. Ablation Study (`ablation_logistic.ipynb`): Validating the Undersmoothed Imputation Penalty
 
 **Objective:** To empirically validate our theoretical insight that the imputation model penalty ($\tilde{\lambda}$) must be small to guarantee valid model selection.
 
 **Description:**
-Our theoretical analysis dictates that the imputation model must be **undersmoothed** to ensure valid model selection with pseudo-labels. While our theoretical guarantees (Theorem 5.2) hold for finite samples, isolating the leading-order effects that govern the optimal penalty scaling requires a sufficiently large sample size. We evaluate our method using $n$ = 16,000 to empirically validate this regime without interference from finite-sample noise. To ensure statistical significance, we sweep across a grid of penalty values and measure the empirical target excess risk of the final estimator over 50 independent Monte Carlo trials. We use the same setup as the previous toy example, i.e. same feature space, response model, and kernel.
+Our theoretical analysis dictates that the imputation model must be **undersmoothed** to ensure valid model selection with pseudo-labels. While our theoretical guarantees (Theorem B.2) hold for finite samples, isolating the leading-order effects that govern the optimal penalty scaling requires a sufficiently large sample size. We evaluate our method using $n$ = 16,000 to empirically validate this regime without interference from finite-sample noise. To ensure statistical significance, we sweep across a grid of penalty values and measure the empirical target excess risk of the final estimator over 50 independent Monte Carlo trials. We use the same setup as the previous toy example, i.e. same feature space, response model, and kernel.
 
 **Results:**
-The output empirically demonstrates that low regularization on the imputer is necessary to achieve Oracle-level target risk, perfectly aligning with the oracle inequality derived in Theorem 5.2 of the main paper.
+The output empirically demonstrates that low regularization on the imputer is necessary to achieve Oracle-level target risk, perfectly aligning with the oracle inequality derived in Theorem B.2 of the main paper.
 
 ![Ablation Study Results](ablation_plot.png)
 
@@ -94,8 +90,8 @@ The output empirically demonstrates that low regularization on the imputer is ne
 * **Massive Performance Gap:** Using the optimal undersmoothed penalty yields a **>10x reduction in excess risk** compared to a standard baseline penalty (0.011 vs. 0.114).
 * **Statistical Significance:** The improvement of the undersmoothed estimator over the baseline is highly statistically significant across all random seeds ($p < 10^{-34}$, paired t-test).
 
-### 4. Synthetic Data (Section 6.1)
-We test our approach using logistic regression with the first-order Sobolev kernel, as explained in Section 6.1 of the paper. 
+## 4. Synthetic Data (Section 5.1)
+We test our approach using logistic regression with the first-order Sobolev kernel, as explained in Section 5.1 of the paper. 
 * **Run the experiment:** Use `run_experiments_logistic.ipynb`. This notebook calls `pseudo_label_experiment_general.py` (or `pseudo_label_experiment_general_KeOps.py` for the KeOps version).
 * **Results:** Because the full experiment is computationally intensive, we have provided the final results in:
     * `results_logistic_torchcpu_1_5_cos_0_4_shift.zip` (covariate shift strength $B=n^{0.4}$) 
