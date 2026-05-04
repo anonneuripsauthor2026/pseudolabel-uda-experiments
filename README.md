@@ -11,7 +11,7 @@ This anonymous repository contains the code and reproducible scripts for the pap
   * KRR Pseudo-Labeling (Wang, 2023)
   * Importance-Weighted Cross-Validation via KLIEP (KLIEP-IW)
   * Importance-Weighted Cross-Validation via Kernel Mean Matching (KMM-IW)
-* **Description:** This script runs the strict "split-and-fit" cross-validation pipeline across 100 random seeds on the Raisin dataset, as described in Section 5.2 of the paper. It tracks the candidate selection process via log-loss (cross-entropy) and demonstrates the instability of density-ratio methods as well as the calibration failure of unconstrained squared-loss selection (KRR).
+* **Description:** This script runs the strict "split-and-fit" cross-validation pipeline across 100 random seeds on the Raisin dataset (CC BY 4.0 license), as described in Section 5.2 of the paper. It tracks the candidate selection process via log-loss (cross-entropy) and demonstrates the instability of density-ratio methods as well as the calibration failure of unconstrained squared-loss selection (KRR).
 
 | Method Category | Selection Strategy / Model | Target Risk (Mean) | Standard Error (SE) |
 | :--- | :--- | :--- | :--- |
