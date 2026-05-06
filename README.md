@@ -25,6 +25,39 @@ This anonymous repository contains the code and reproducible scripts for the pap
 | | Oracle (True Target Labels) | 0.437 | 0.008 |
 | **Baseline** | Naive (Source-Only) | 0.442 | 0.014 |
 
+
+## WILDS (`wilds_dino_exp_final.ipynb`)
+
+This experiment evaluates our pseudo-labeling method for regularization selection under a realistic Unsupervised Domain Adaptation (UDA) scenario using the Camelyon17 (CC0 license) dataset from the WILDS benchmark. The goal is tumor detection in histopathology patches across a natural domain shift (source: hospitals 0–3, unlabeled target: hospital 4). 
+
+**Setup & Preprocessing**
+* **Features:** We extract 768-dimensional representations using a frozen pretrained DINOv2 ViT-B/14 backbone. 
+* **Dimensionality Reduction:** We apply standardization and joint PCA (top 256 components). This step is critical: in the raw 768-dim ambient space, the domain shift is largely orthogonal to the classification signal. Projecting onto the principal directions of the pooled feature covariance retains the subspace where source and target distributions most differ, inducing the regularization path divergence our method exploits. 
+* **Scalability:** By operating smoothly in this space, our pseudo-labeling method sidesteps the crippling RAM bottlenecks that traditional density ratio methods (like KMM or KLIEP) face when computing kernel matrices across tens of thousands of target samples.
+* **Evaluation:** Candidate ridge logistic regression models are trained on $D_1$ (50 samples/class), sweeping regularization parameter $C$ over 40 log-uniform values from $10^{-5}$ to $10^5$. The imputer model is trained on $D_2$ (100, 200, or 400 samples/class) with minimum regularization to generate soft pseudo-labels on the target covariates. Results are averaged over 100 random seeds.
+
+#### Results
+
+*(Note: A figure illustrating the risk curves across the regularization path will be added here shortly.)*
+
+| $D_2$ / class | Method | Mean Target NLL | 95% CI | Mean $C$ Selected |
+| :--- | :--- | :--- | :--- | :--- |
+| **100** | Naive | 0.682 | [0.662, 0.702] | 0.153 |
+| | **Pseudo (Ours)** | **0.645** | **[0.637, 0.653]** | **0.012** |
+| | Oracle | 0.621 | [0.611, 0.631] | 0.034 |
+| **200** | Naive | 0.678 | [0.659, 0.698] | 0.138 |
+| | **Pseudo (Ours)** | **0.633** | **[0.624, 0.643]** | **0.019** |
+| | Oracle | 0.621 | [0.611, 0.631] | 0.034 |
+| **400** | Naive | 0.677 | [0.658, 0.696] | 0.127 |
+| | **Pseudo (Ours)** | **0.630** | **[0.620, 0.639]** | **0.023** |
+| | Oracle | 0.621 | [0.611, 0.631] | 0.034 |
+
+#### Key Takeaways
+
+1. **Pseudo-Labeling Outperforms Naive Validation:** Across all $D_2$ sizes, our method achieves substantially lower target Negative Log-Likelihood (NLL) with non-overlapping confidence intervals. The naive method systematically selects too little regularization ($C \approx 0.13-0.15$). Pseudo-labeling corrects this, selecting a $C$ much closer to the Oracle's ideal $0.034$ without ever observing target labels. *(Note: While accuracy remains coarse and undifferentiated at ~0.66 for all methods, NLL correctly captures the superior conditional probability estimation and calibration of our approach).*
+2. **Monotonic Improvement with Data:** As imputer data ($D_2$) grows from 100 to 400 samples per class, pseudo-target NLL steadily decreases from $0.645$ to $0.630$, converging toward the Oracle. The selected $C$ similarly converges from $0.012$ to $0.023$. This directly reflects the theoretical oracle inequality: more data reduces imputer bias, aligning the pseudo-risk closer to the true target risk.
+3. **Striking Variance Reduction:** Pseudo-labeling not only improves mean performance but dramatically stabilizes model selection. It reduces the standard deviation of selection across seeds from $\approx 0.10$ (Naive) down to $\approx 0.04-0.05$, effectively matching the Oracle's stability—a crucial property for real-world deployment.
+
 ## Toy Example (`demo_covariate_shift.ipynb`)
 **Objective:** Demonstrate the necessity of target-specific adaptation, achieved through target-aware Ridge regularization's parameter selection for well-specified models.
 * **Description:** This simulation generates a well-specified synthetic environment undergoing covariate shift. It compares the risk landscape of models tuned exclusively on the source distribution (Naive) versus models tuned via our target-optimal penalty selection.
@@ -111,8 +144,10 @@ This repository provides a general solver for kernel ridge regression, kernel lo
 
 ## References & Acknowledgements
 
-The experimental evaluation framework for the real-world dataset builds upon the open-source implementation provided by Feng et al. (2023). We adapted and significantly extended their cross-validation pipeline to integrate the proper unweighted candidate training for our GLM framework, re-using their KLIEP density ratio estimation implementation `KLIEP_importance_estimation.py`. The KRR pseudo-labeling baseline methodology follows Wang (2026).
+The experimental evaluation framework for the real-world dataset builds upon the open-source implementation provided by Feng et al. (2023). We adapted and significantly extended their cross-validation pipeline to integrate the proper unweighted candidate training for our GLM framework, re-using their KLIEP density ratio estimation implementation `KLIEP_importance_estimation.py`. The KRR pseudo-labeling baseline methodology follows Wang (2026). The second real-data experiment relies on the Camelyon17 dataset, utilizing the standardized hospital-based domain splits curated by the WILDS benchmark for evaluating out-of-distribution generalization.
 
 * **Feng, X., He, X., Wang, C., Wang, C., & Zhang, J. (2023).** Towards a unified analysis of kernel-based methods under covariate shift. *Advances in Neural Information Processing Systems*, 36, 73839-73851.
 * **Wang, K. (2026).** Pseudo-labeling for kernel ridge regression under covariate shift. *The Annals of Statistics*, 54(1), 252-276.
+* **WILDS Benchmark:** Koh, P. W., Sagawa, S., Marklund, H., et al. (2020). *WILDS: A Benchmark of in-the-Wild Distribution Shifts*. 
+* **Camelyon Dataset:** Litjens, G., Bandi, P., Ehteshami Bejnordi, B., et al. (2018). *1399 H&E-stained sentinel lymph node sections of breast cancer patients: the CAMELYON dataset*. GigaScience, 7.
 
