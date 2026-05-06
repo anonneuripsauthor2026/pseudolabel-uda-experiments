@@ -38,7 +38,7 @@ This experiment evaluates our pseudo-labeling method for regularization selectio
 
 #### Results
 
-*(Note: A figure illustrating the risk curves across the regularization path will be added here shortly.)*
+![Camelyon17 experiment results](avg_risk_curves.png)
 
 | $D_2$ / class | Method | Mean Target NLL | 95% CI | Mean $C$ Selected |
 | :--- | :--- | :--- | :--- | :--- |
@@ -85,7 +85,7 @@ Then on the right panel below, we compare three model selections methods based o
   <img src="pseudo_oracle_naive_imp.png" width="48%" alt="Selection Methods">
 </p>
 
-*Figure 1: Covariate shift and its adaptation in Kernel Logistic Regression. The black dashed curves show the true latent function* $f^\ast(x)$ *.*
+*Figure 2: Covariate shift and its adaptation in Kernel Logistic Regression. The black dashed curves show the true latent function* $f^\ast(x)$ *.*
 
 *(Note: We also visualize the imputation model used to generate the pseudo-labels, shown in pink. While unsuitable for direct prediction, it is effective for model selection with pseudo-labels).*
 
