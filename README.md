@@ -8,7 +8,7 @@ This anonymous repository contains the code and reproducible scripts for the pap
 **Objective:** Compare our GLM Pseudo-Labeling framework against established density-ratio (Importance Weighting) and KRR pseudo-labeling baselines.
 * **Methods Included:**
   * Unsupervised GLM Pseudo-Labeling (Ours)
-  * KRR Pseudo-Labeling (Wang, 2023)
+  * KRR Pseudo-Labeling (Wang, 2026)
   * Importance-Weighted Cross-Validation via KLIEP (KLIEP-IW)
   * Importance-Weighted Cross-Validation via Kernel Mean Matching (KMM-IW)
 * **Description:** This script runs the strict "split-and-fit" cross-validation pipeline across 100 random seeds on the Raisin dataset (CC BY 4.0 license), as described in Section 5.2 of the paper. It tracks the candidate selection process via log-loss (cross-entropy) and demonstrates the instability of density-ratio methods as well as the calibration failure of unconstrained squared-loss selection (KRR).
@@ -17,7 +17,7 @@ This anonymous repository contains the code and reproducible scripts for the pap
 | :--- | :--- | :--- | :--- |
 | **Ours (Kernel GLM)** | **Pseudo-Labeling (Unsupervised)** | **0.383** | **0.006** |
 | | Oracle (True Target Labels) | 0.376 | 0.007 |
-| **Wang (2023) KRR** | Pseudo-Labeling (Unsupervised) | 0.406 | 0.009 |
+| **Wang (2026) KRR** | Pseudo-Labeling (Unsupervised) | 0.406 | 0.009 |
 | | Oracle (True Target Labels) | 0.443 | 0.007 |
 | **KLIEP (Density Ratio)** | Importance-Weighted CV | 0.438 | 0.014 |
 | | Oracle (True Target Labels) | 0.384 | 0.007 |
