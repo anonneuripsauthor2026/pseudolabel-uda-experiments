@@ -38,10 +38,12 @@ This experiment evaluates our pseudo-labeling method for regularization selectio
 
 #### Results
 
-<figure>
-  <img src="avg_risk_curves.png" width="600">
-  <figcaption align="center"><b>Figure 1:</b> Camelyon17 experiment results.</figcaption>
-</figure>
+<p align="center">
+  <img src="avg_risk_curves.png" width="600"><br>
+  <em>Figure 1: Camelyon17 experiment results.</em>
+</p>
+
+
 
 | $D_2$ / class | Method | Mean Target NLL | 95% CI | Mean $C$ Selected |
 | :--- | :--- | :--- | :--- | :--- |
