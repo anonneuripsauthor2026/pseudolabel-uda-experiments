@@ -38,6 +38,8 @@ This experiment evaluates our pseudo-labeling method for regularization selectio
 
 #### Results
 
+Figure 1 plots the selection risk curve for the three methods, across all random seeds. It shows that selecting the regularization strength with the pseudo-labeling method closely matches the oracle (that knows the target labels), as opposed to the naive source-only baseline.
+
 <p align="center">
   <img src="avg_risk_curves.png" width="600"><br>
   <em>Figure 1: Camelyon17 experiment results.</em>
