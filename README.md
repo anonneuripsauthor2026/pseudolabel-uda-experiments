@@ -53,7 +53,6 @@ This first table shows the evolution of each validation loss (naive source valid
 | 6 | 0.O45 | 0.479 | 1.128 |
 | 7 | 0.045 | 0.510 | 1.102 |
 | 8 | 0.040 | 1.269 | 1.953 |
-| 9 | 0.O40 | 0.547 | 1.243 |
 
 This second table gives the target test evaluation (accuracy and NLL) of the three final selected models.
 
