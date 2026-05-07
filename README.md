@@ -145,7 +145,7 @@ This repository provides a general solver for kernel ridge regression, kernel lo
 * `rkhs_glm_scaled.py`: Provides the basic solver for ridge-regularized kernel GLMs. For relatively small sample sizes ($n \le 5000$), a simple version using only Numpy and Scipy is enough. 
 * `rkhs_glm_scaled_KeOps.py`: For larger problems, we implement the IRLS inner linear solves using kernel matvec oracles computed on-the-fly on the GPU, using the KeOps library.
 
-**Compute resources:**. All reported experiments were run on Google Colab Pro. Most runs are CPU-reproducible and do not require specialized hardware; Colab Pro was used primarily for convenience. The main experimental runs used High RAM Colab CPU runtimes with approximately 30 GB RAM. GPU acceleration was used only for the PyKeOps-based kernel computation module, where it reduces runtime but is not essential to the proposed model-selection procedure.
+**Compute resources:**. All reported experiments were run on Google Colab Pro. Most runs are CPU-reproducible and do not require specialized hardware; Colab Pro was used primarily for convenience. The main experimental runs used High RAM Colab CPU runtimes with approximately 30 GB RAM. GPU acceleration was used for the PyKeOps-based kernel computation module, where it reduces runtime but is not essential to the proposed model-selection procedure, and for the deep learning experiment on WILDS, where we used Colab A100 GPU with high RAM.
 
 ## References & Acknowledgements
 
