@@ -26,44 +26,43 @@ This anonymous repository contains the code and reproducible scripts for the pap
 | **Baseline** | Naive (Source-Only) | 0.442 | 0.014 |
 
 
-## WILDS (`wilds_dino_exp_final.ipynb`)
+## WILDS / Camelyon17 dataset (`dino_wilds_early_stopping_final.ipynb`, Section 5.3)
 
-This experiment evaluates our pseudo-labeling method for regularization selection under a realistic Unsupervised Domain Adaptation (UDA) scenario using the Camelyon17 (CC0 license) dataset from the WILDS benchmark. The goal is tumor detection in histopathology patches across a natural domain shift (source: hospitals 0–3, unlabeled target: hospital 4). 
+This experiment evaluates our pseudo-labeling model selection method (valid beyond kernel GLMs under mild assumptions as per Theorem B.1) for an early stopping decision problem, when fine-tuning a large pre-trained neural network plus a linear head on some source data, in order to optimize for target performance, without access to target labels. 
+This realistic Unsupervised Domain Adaptation (UDA) scenario is explored using the Camelyon17 (CC0 license) dataset from the WILDS benchmark. The goal is tumor detection in histopathology patches across a natural domain shift (source: hospitals 0–3, unlabeled target: hospital 4). It is described in detail in Section 5.3 and Appendix H.5. 
 
-**Setup & Preprocessing**
-* **Features:** We extract 768-dimensional representations using a frozen pretrained DINOv2 ViT-B/14 backbone. 
-* **Dimensionality Reduction:** We apply standardization and joint PCA (top 256 components). This step is critical: in the raw 768-dim ambient space, the domain shift is largely orthogonal to the classification signal. Projecting onto the principal directions of the pooled feature covariance retains the subspace where source and target distributions most differ, inducing the regularization path divergence our method exploits. 
-* **Scalability:** By operating smoothly in this space, our pseudo-labeling method sidesteps the crippling RAM bottlenecks that traditional density ratio methods (like KMM or KLIEP) face when computing kernel matrices across tens of thousands of target samples.
-* **Evaluation:** Candidate ridge logistic regression models are trained on $D_1$ (50 samples/class), sweeping regularization parameter $C$ over 40 log-uniform values from $10^{-5}$ to $10^5$. The imputer model is trained on $D_2$ (100, 200, or 400 samples/class) with minimum regularization to generate soft pseudo-labels on the target covariates. Results are averaged over 100 random seeds.
+**Setup & Procedure**
+* **Features:** 302,436 source training patches (D1), 33,560 source validation patches (D2), and 85,054 target patches (D0, split into D_sel and D_test), 96x96 dimension.
+* **Imputer:** Fine-tune a 768-dimensional pretrained DINOv2 ViT-B/14 backbone + linear head on D2 to convergence, use it to compute soft pseudo-labels on D_sel. 
+* **Candidates:** Fine-tune independently a 768-dimensional pretrained DINOv2 ViT-B/14 backbone + linear head on D1 for $t$ epochs. At each epoch, evaluate the checkpoint model on D_sel and D2.
+* **Selection:** The best checkpoint is selected as minimizing the source validation loss on D2 (Naive method), the pseudo-target validation risk on D_sel (Pseudo-labeling method), or the true target validation risk on D_sel (Oracle method).
+* **Evaluation:** Evaluate all selected models on D_test using the true labels (unavailable in practice) by computing the target accuracy and NLL (negative log-likelihood).
+
+The whole experiment can be reproduced by running the notebook `dino_wilds_early_stopping_final.ipynb`. 
 
 #### Results
+This first table shows the evolution of each validation loss (naive source validation, pseudo target validation, oracle target validation) across epochs. It shows that the pseudo loss consistently tracks the oracle's, while the source keeps decreasing as the fine-tuning overfits the source data. 
 
-Figure 1 plots the selection risk curves (regularization path) for the three methods, across all random seeds. It shows that selecting the regularization strength with the pseudo-labeling method closely matches the oracle (that knows the target labels), as opposed to the naive source-only baseline. x-axis: regularization parameter C (log-scale, lower C means higher regularization), y-axis: empirical target risk.
+| Epoch | Naive | Pseudo | Oracle |
+| :--- | :--- | :--- | :--- |
+| 1 | 0.111 | 0.351 | 0.659 |
+| 2 | 0.071 | 0.406 | 0.968 |
+| 3 | 0.O56 | 0.559 | 1.162 |
+| 4 | 0.057 | 0.800 | 1.318 |
+| 5 | 0.041 | 0.527 | 1.213 |
+| 6 | 0.O45 | 0.479 | 1.128 |
+| 7 | 0.045 | 0.510 | 1.102 |
+| 8 | 0.040 | 1.269 | 1.953 |
+| 9 | 0.O40 | 0.547 | 1.243 |
 
-<p align="center">
-  <img src="avg_risk_curves.png" width="600"><br>
-  <em>Figure 1: Camelyon17 experiment results.</em>
-</p>
+This second table gives the target test evaluation (accuracy and NLL) of the three final selected models.
 
+| Method | Epoch | Target NLL | Target Accuracy |
+| :--- | :--- | :--- | :--- |
+| Pseudo | 1 | 0.66 | 0.73 |
+| Oracle | 1 | 0.66 | 0.73 |
+| Naive | 8 | 1.94 | 0.53 |
 
-
-| $D_2$ / class | Method | Mean Target NLL | 95% CI | Mean $C$ Selected |
-| :--- | :--- | :--- | :--- | :--- |
-| **100** | Naive | 0.682 | [0.662, 0.702] | 0.153 |
-| | **Pseudo (Ours)** | **0.645** | **[0.637, 0.653]** | **0.012** |
-| | Oracle | 0.621 | [0.611, 0.631] | 0.034 |
-| **200** | Naive | 0.678 | [0.659, 0.698] | 0.138 |
-| | **Pseudo (Ours)** | **0.633** | **[0.624, 0.643]** | **0.019** |
-| | Oracle | 0.621 | [0.611, 0.631] | 0.034 |
-| **400** | Naive | 0.677 | [0.658, 0.696] | 0.127 |
-| | **Pseudo (Ours)** | **0.630** | **[0.620, 0.639]** | **0.023** |
-| | Oracle | 0.621 | [0.611, 0.631] | 0.034 |
-
-#### Key Takeaways
-
-1. **Pseudo-Labeling Outperforms Naive Validation:** Across all $D_2$ sizes, our method achieves substantially lower target Negative Log-Likelihood (NLL) with non-overlapping confidence intervals. The naive method systematically selects too little regularization ($C \approx 0.13-0.15$). Pseudo-labeling corrects this, selecting a $C$ much closer to the Oracle's ideal $0.034$ without ever observing target labels. *(Note: While accuracy remains coarse and undifferentiated at ~0.66 for all methods, NLL correctly captures the superior conditional probability estimation and calibration of our approach).*
-2. **Monotonic Improvement with Data:** As imputer data ($D_2$) grows from 100 to 400 samples per class, pseudo-target NLL steadily decreases from $0.645$ to $0.630$, converging toward the Oracle. The selected $C$ similarly converges from $0.012$ to $0.023$. This directly reflects the theoretical oracle inequality: more data reduces imputer bias, aligning the pseudo-risk closer to the true target risk.
-3. **Striking Variance Reduction:** Pseudo-labeling not only improves mean performance but dramatically stabilizes model selection. It reduces the standard deviation of selection across seeds from $\approx 0.10$ (Naive) down to $\approx 0.04-0.05$, effectively matching the Oracle's stability—a crucial property for real-world deployment.
 
 ## Toy Example (`demo_covariate_shift.ipynb`)
 **Objective:** Demonstrate the necessity of target-specific adaptation, achieved through target-aware Ridge regularization's parameter selection for well-specified models.
