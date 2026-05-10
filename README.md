@@ -1,6 +1,6 @@
 # Code Repository for the Review Process
 
-**Paper:** *Pseudo-Labeling for Unsupervised Domain Adaptation with Kernel GLMs* (NeurIPS 2026 Submission)
+**Paper:** *Pseudo-Labeling for Unsupervised Domain Adaptation with Kernel GLMs*
 
 This anonymous repository contains the code and reproducible scripts for the paper's experiments.
 
